@@ -1,4 +1,4 @@
-1. Describa brevemente los diferentes perfiles de familias de microprocesadores/microcontroladores de ARM. Explique alguna de sus diferencias características.
+#### 1. Describa brevemente los diferentes perfiles de familias de microprocesadores/microcontroladores de ARM. Explique alguna de sus diferencias características.
 
 Los microprocesadores ARM se agrupan en tres familias según su utilización:
 
@@ -11,10 +11,9 @@ Cortex R
 Cortex M
 - Dispositivos utilizados para desarrollos de fabricación masiva. Contienen características como memoria y periféricos de comunicación embebidos.
 
-		Cortex M
+		Sección Cortex M
 
-1. Describa brevemente las diferencias entre las familias de procesadores Cortex M0, M3 y
-M4.
+#### 1. Describa brevemente las diferencias entre las familias de procesadores Cortex M0, M3 y M4.
 
 Una de las principales diferencias entre los Cortex M0 y los demás es que los M0 disponen de una arquitectura Von Neumann y los M3 y M4 cuentan con arquitectura Harvard. Las ventajas de la arquitectura Von Neumann es la simpleza y la eficiencia en la utilización de memoria, pero no pueden paralelizar el acceso a datos e instrucciones como sí se logra con la Harvard.
 
@@ -23,24 +22,20 @@ M0: set de instrucciones básico.
 M3: se incorpora instrucciones para utilizar campos de bit.
 M4: se incorpora instrucciones para el procesamiento de grandes cantidades de datos (SIMD) y punto flotante.
 
-2. ¿Por qué se dice que el set de instrucciones Thumb permite mayor densidad de código?
-Explique
+#### 2. ¿Por qué se dice que el set de instrucciones Thumb permite mayor densidad de código? Explique
 
 Porque permite que, en la instancia del ensamblado del código, el ensamblador defina si es posible  por ejemplo, en un procesador de 32 bit, utilizar instrucciones para 16 bits en lugar de instrucciones de 32 bits para una determinada operación. Esto vuelve más eficiente el uso de memoria.
 
-3. ¿Qué entiende por arquitectura load-store? ¿Qué tipo de instrucciones no posee este
-tipo de arquitectura?
+####  3. ¿Qué entiende por arquitectura load-store? ¿Qué tipo de instrucciones no posee este tipo de arquitectura?
 
 Una arquitectura load/store es aquella que, ante una instrucción, toma los datos necesario de memoria, colocándolos en registros (load) y, luego, toma el resultado de la operación desde los registros correspondientes y los carga en memoria (store).
 
-4. ¿Cómo es el mapa de memoria de la familia?
+#### 4. ¿Cómo es el mapa de memoria de la familia?
 
 Es un mapa de memoria plano que permite direccionar hasta 4GB.
 
 
-6. Describa los diferentes modos de privilegio y operación del Cortex M, sus relaciones y
-como se conmuta de uno al otro. Describa un ejemplo en el que se pasa del modo
-privilegiado a no priviligiado y nuevamente a privilegiado.
+#### 6. Describa los diferentes modos de privilegio y operación del Cortex M, sus relaciones y como se conmuta de uno al otro. Describa un ejemplo en el que se pasa del modo privilegiado a no priviligiado y nuevamente a privilegiado.
 
 Modo protegido
 	En este modo se definen áreas de la memoria de no acceso, parcial o total, y se habilita la MPU (unidad de protección de memoria).
@@ -48,18 +43,17 @@ Todo desde el micro se accede mediante memoria mapeada.
 Modo no protegido:
 	Se permite el acceso a todos los periféricos, flash, registros.
 
-17. ¿Qué es el systick? ¿Por qué puede afirmarse que su implementación favorece la
-portabilidad de los sistemas operativos embebidos?
+#### 17. ¿Qué es el systick? ¿Por qué puede afirmarse que su implementación favorece la portabilidad de los sistemas operativos embebidos?
 
 Es un sistema de interrupciones por timer que permite llevar una marca exacta del tiempo. Favorece la portabilidad ya que ARM exige a los fabricantes que sea un periférico estándar y, por lo tanto, debe incluirse en la fabricación.
-18. ¿Qué funciones cumple la unidad de protección de memoria (MPU)?
+
+#### 18. ¿Qué funciones cumple la unidad de protección de memoria (MPU)?
 
 Es la encargada de proteger regiones definidad de memoria y, por lo tanto, proteger también los accesos a periféricos (mapeados en memoria).
 
 
-		ISA
+		Sección ISA
 
-5. ¿Qué es una instrucción SIMD? ¿En qué se aplican y que ventajas reporta su uso? Dé un
-ejemplo.
+#### 5. ¿Qué es una instrucción SIMD? ¿En qué se aplican y que ventajas reporta su uso? Dé un ejemplo.
 
 Es una instrucción que está preparada para operar con gran cantidad de datos en un ciclo de reloj. Se aplica en operaciones que, justamente, requiera operar con mucha cantidad de dato al mismo tiempo, por ejemplo, procesamiento de imágenes.
