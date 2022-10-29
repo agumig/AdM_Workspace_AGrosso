@@ -24,11 +24,11 @@ M4: se incorpora instrucciones para el procesamiento de grandes cantidades de da
 
 #### 2. ¿Por qué se dice que el set de instrucciones Thumb permite mayor densidad de código? Explique
 
-Porque permite que, en la instancia del ensamblado del código, el ensamblador defina si es posible  por ejemplo, en un procesador de 32 bit, utilizar instrucciones para 16 bits en lugar de instrucciones de 32 bits para una determinada operación. Esto vuelve más eficiente el uso de memoria.
+Porque permite que, en la instancia del ensamblado del código, el ensamblador defina si es posible  por ejemplo, en un procesador de 32 bit, utilizar instrucciones para 16 bits en lugar de instrucciones de 32 bits para una determinada operación. Esto vuelve más eficiente el uso de memoria ya que se evita trabajar con cantidades de bits mayores e innecesarios.
 
 ####  3. ¿Qué entiende por arquitectura load-store? ¿Qué tipo de instrucciones no posee este tipo de arquitectura?
 
-Una arquitectura load/store es aquella que, ante una instrucción, toma los datos necesario de memoria, colocándolos en registros (load) y, luego, toma el resultado de la operación desde los registros correspondientes y los carga en memoria (store).
+Una arquitectura load/store es aquella que, ante una instrucción, toma los datos necesario de memoria, colocándolos en registros (load) y, luego, toma el resultado de la operación desde los registros correspondientes y los carga en memoria (store). Es decir, las instrucciones usan solamente registros como operandos.
 
 #### 4. ¿Cómo es el mapa de memoria de la familia?
 
@@ -37,15 +37,19 @@ Es un mapa de memoria plano que permite direccionar hasta 4GB.
 
 #### 6. Describa los diferentes modos de privilegio y operación del Cortex M, sus relaciones y como se conmuta de uno al otro. Describa un ejemplo en el que se pasa del modo privilegiado a no priviligiado y nuevamente a privilegiado.
 
-Modo protegido
-	En este modo se definen áreas de la memoria de no acceso, parcial o total, y se habilita la MPU (unidad de protección de memoria).
-Todo desde el micro se accede mediante memoria mapeada.
-Modo no protegido:
-	Se permite el acceso a todos los periféricos, flash, registros.
+- Modo thread de operación
+        - Modo privilegiado de acceso.
+        - Modo no privilegiado de acceso.
+                Para volver al modo privilegiado, hay que generar una interrupción por software para ir a modo Handler y, desde allí, cambiar el nivel de privilegio.
+- Modo handler de operación
+        - Es siempre privilegiado
+        - Las interrupciones (excepción) se ejecutan en modo handler.
+        - Se tiene acceso a todos los recursos del sistema.
 
 #### 17. ¿Qué es el systick? ¿Por qué puede afirmarse que su implementación favorece la portabilidad de los sistemas operativos embebidos?
 
-Es un sistema de interrupciones por timer que permite llevar una marca exacta del tiempo. Favorece la portabilidad ya que ARM exige a los fabricantes que sea un periférico estándar y, por lo tanto, debe incluirse en la fabricación.
+Es un sistema de interrupciones por timer que permite llevar una marca exacta del tiempo. Al ocurrir una interrupción del systick, se ejuta el scheduler del SO en modo handler.
+Favorece la portabilidad ya que ARM exige a los fabricantes que sea un periférico estándar y, por lo tanto, debe incluirse en la fabricación.
 
 #### 18. ¿Qué funciones cumple la unidad de protección de memoria (MPU)?
 
