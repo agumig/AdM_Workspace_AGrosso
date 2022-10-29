@@ -1,5 +1,5 @@
 # AdM_Workspace_AGrosso
-### Repositorio para la asignatura Arquitectura de Microprocesadores
+Repositorio para la asignatura Arquitectura de Microprocesadores
 
 
 ## Folder Preguntas Orientadoras:
