@@ -53,7 +53,8 @@ extern "C" {
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-
+void zeros (uint32_t * vector, uint32_t longitud);
+void productoEscalar32 (uint32_t * vectorIn, uint32_t * vectorOut, uint32_t longitud, uint32_t escalar);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
