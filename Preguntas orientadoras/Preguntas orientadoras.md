@@ -46,6 +46,12 @@ Es un mapa de memoria plano que permite direccionar hasta 4GB.
         - Las interrupciones (excepción) se ejecutan en modo handler.
         - Se tiene acceso a todos los recursos del sistema.
 
+### 10. Describa las funciones principales de la pila. ¿Cómo resuelve la arquitectura el llamado a funciones y su retorno?
+La pila es un área de memoria que se utiliza para el resguardo de datos, por ejemplo, el resguardo del valor de registros previo a utilizarlos para otra operación.
+ARM implementa el uso de los primeros 4 (cuatro) registros de propósito general para los datos pasados a la función, evitando el uso del stack para estas operaciones (mejora de perfomance).
+Para el retorno de un valor se utiliza, por definición, el registo r0.
+Entonces, una vez que la función finaliza, se debe almacenar el resultado que se debe devolver en el registro r0 y realizar un salto a la dirección guardada en lr (link register) para volver a la instrucción siguiente al llamado de función.
+
 #### 17. ¿Qué es el systick? ¿Por qué puede afirmarse que su implementación favorece la portabilidad de los sistemas operativos embebidos?
 
 Es un sistema de interrupciones por timer que permite llevar una marca exacta del tiempo. Al ocurrir una interrupción del systick, se ejuta el scheduler del SO en modo handler.
