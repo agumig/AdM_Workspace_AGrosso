@@ -404,12 +404,12 @@ void zeros (uint32_t * vector, uint32_t longitud)
 	}
 	else
 	{
-		//excepcion
+		Error_Handler();	//exception
 	}
 }
 
 /**
- * @brief   Multiplies a vector and a scalar
+ * @brief   Multiplies a vector and a scalar in 32 bits
  * @param   *vectorIn 	Pointer to the vector
  * @param   *vectorOut 	Pointer to the vector multiplied
  * @param	longitud 	Vector size
@@ -427,9 +427,61 @@ void productoEscalar32 (uint32_t * vectorIn, uint32_t * vectorOut, uint32_t long
 	}
 	else
 	{
-		//excepcion
+		Error_Handler();	//exception
 	}
 }
+
+/**
+ * @brief   Multiplies a vector and a scalar in 16 bits
+ * @param   *vectorIn 	Pointer to the vector
+ * @param   *vectorOut 	Pointer to the vector multiplied
+ * @param	longitud 	Vector size
+ * @param	escalar 	Scalar value
+ * @return  None
+ */
+void productoEscalar16 (uint16_t * vectorIn, uint16_t * vectorOut, uint32_t longitud, uint16_t escalar)
+{
+	uint32_t i = 0;
+
+		if (NULL != vectorIn && NULL != vectorOut && longitud > 0)
+		{
+			for(i = 0; i < longitud; i++)
+				*(vectorOut+i) = *(vectorIn+i) * escalar;
+		}
+		else
+		{
+			Error_Handler();	//exception
+		}
+}
+
+/**
+ * @brief   Multiplies a vector and a scalar in 12 bits saturated arithmetic
+ * @param   *vectorIn 	Pointer to the vector
+ * @param   *vectorOut 	Pointer to the vector multiplied
+ * @param	longitud 	Vector size
+ * @param	escalar 	Scalar value
+ * @return  None
+ */
+void productoEscalar12 (uint16_t * vectorIn, uint16_t * vectorOut, uint32_t longitud, uint16_t escalar)
+{
+	uint32_t i = 0;
+
+		if (NULL != vectorIn && NULL != vectorOut && longitud > 0)
+		{
+			for(i = 0; i < longitud; i++)
+			{
+				if((*(vectorIn+i) * escalar) > SATURACION_12_BITS)
+					*(vectorOut+i) = SATURACION_12_BITS;
+				else
+					*(vectorOut+i) = *(vectorIn+i) * escalar;
+			}
+		}
+		else
+		{
+			Error_Handler();	//exception
+		}
+}
+
 
 /* USER CODE END 4 */
 

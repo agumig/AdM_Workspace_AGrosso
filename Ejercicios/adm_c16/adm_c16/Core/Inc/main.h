@@ -55,6 +55,8 @@ void Error_Handler(void);
 /* USER CODE BEGIN EFP */
 void zeros (uint32_t * vector, uint32_t longitud);
 void productoEscalar32 (uint32_t * vectorIn, uint32_t * vectorOut, uint32_t longitud, uint32_t escalar);
+void productoEscalar16 (uint16_t * vectorIn, uint16_t * vectorOut, uint32_t longitud, uint16_t escalar);
+void productoEscalar12 (uint16_t * vectorIn, uint16_t * vectorOut, uint32_t longitud, uint16_t escalar);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
@@ -109,7 +111,7 @@ void productoEscalar32 (uint32_t * vectorIn, uint32_t * vectorOut, uint32_t long
 #define LD2_Pin GPIO_PIN_7
 #define LD2_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
-
+#define SATURACION_12_BITS	0xFFF
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
