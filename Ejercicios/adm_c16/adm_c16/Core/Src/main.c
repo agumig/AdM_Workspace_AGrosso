@@ -482,6 +482,39 @@ void productoEscalar12 (uint16_t * vectorIn, uint16_t * vectorOut, uint32_t long
 		}
 }
 
+/**
+ * @brief   10-samples window average filter
+ * @param   *vectorIn 	Pointer to the vector
+ * @param   *vectorOut 	Pointer to the vector multiplied
+ * @param	longitudVectorIn 	Vector size
+ * @return  None
+ */
+void filtroVentana10(uint16_t * vectorIn, uint16_t * vectorOut, uint32_t longitudVectorIn)
+{
+	uint32_t i = 0, delta = 0;
+	uint8_t samples = 0;
+	uint64_t acum = 0;
+
+	for (i = 0; i < longitudVectorIn; i++)
+	{
+		for(delta = 1; delta <= SAMPLES_WINDOW/2 ; delta++)
+		{
+			if((i + delta) < longitudVectorIn)
+			{
+				acum+=vectorIn[i+delta];
+				samples++;
+			}
+			if((i - delta) >= 0)
+			{
+				acum+=vectorIn[i-delta];
+				samples++;
+			}
+		}
+		vectorOut[i] = acum/samples;
+		acum = 0;
+		samples = 0;
+	}
+}
 
 /* USER CODE END 4 */
 
