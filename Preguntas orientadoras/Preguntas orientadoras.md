@@ -46,6 +46,10 @@ Es un mapa de memoria plano que permite direccionar hasta 4GB.
         - Las interrupciones (excepción) se ejecutan en modo handler.
         - Se tiene acceso a todos los recursos del sistema.
 
+### 8. ¿Qué ventajas presenta el uso de intrucciones de ejecución condicional (IT)? Dé un ejemplo
+Las instrucciones de ejecución condicional permiten evitar que haya saltos incondicionales y, por lo tanto, que el pipeline se destruya provocando demoras.
+
+
 #### 9. Describa brevemente las excepciones más prioritarias (reset, NMI, Hardfault).
 Las tres primeras excepciones descriptas en la tabla de Excepciones son reset, NMI y HardFault. Estas excepciones ya tienen definido el campo priority y son los niveles más altos de prioridades:
 - Reset:	Priority = -3
