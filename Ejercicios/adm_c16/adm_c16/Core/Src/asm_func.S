@@ -88,7 +88,6 @@
 		pop {r4}
 		bx lr		@ Retorno a quien llamó a la función.
 
-
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 @ Prototipo en "C":
 @   void asm_productoEscalar16 (uint16_t * vectorIn, uint16_t * vectorOut, uint32_t longitud, uint16_t escalar);
@@ -152,6 +151,42 @@
 			bne asm_pack32to16_bucle
 		pop {r3}
 		bx lr
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@ Prototipo en "C":
+@	int32_t asm_max (int32_t * vectorIn, uint32_t longitud);
+@f
+@ Parámetros recibidos:
+@   r0: dirección de memoria de inicio del vector de entrada.
+@   r1: longitud del vector de entrada.
+@ Registros a usar
+@	r2: resguardo del máximo valor
+@	r3: resguardo de la posición en memoria del máximo valor
+@	r4: contador
+@	r5: para leer la memoria
+@
+@ Retorno
+@	r0: valor de la posición del vector donde se encuentra el valor máximo
+.thumb_func
+	asm_max:
+		push {r2-r5}	@ Resguardo registros a usar
+		mov r2, 0	@ Inicializo en cero
+		mov r3, 0	@ Inicializo en cero
+		mov r4, 0	@ Inicializo en cero
+		mov r5, 0	@ Inicializo en cero
+		asm_max_bucle:
+			ldr r5, [r0], #4	@ Leo el valor del vector
+			cmp r5, r2			@ Comparo el valor actual (r5) con el último máximo (r2)
+			ITT HI				@ Ejecución condicional de próximas dos instrucciones: si r5 es mayor a r2
+				movhi r3, r4	@ Guardo el índice del vector
+				movhi r2, r5	@ Guardo el nuevo valor máximo
+			add r4, 1			@ Incremento el valor del índice en el vector
+			subs r1, 1			@ Resto al tamaño del vector y, por lo tanto, a la cantidad de ciclos del bucle
+			bne asm_max_bucle
+		mov r0, r5				@ Guardo el máximo (valor de retorno)
+		pop {r2-r5}
+		bx lr
+
 
 
 
