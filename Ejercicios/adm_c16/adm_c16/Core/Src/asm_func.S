@@ -8,6 +8,7 @@
 .global asm_zero
 .global asm_productoEscalar32
 .global asm_productoEscalar16
+.global asm_productoEscalar12
 
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -108,4 +109,29 @@
 			bne asm_prod16_bucle	@ Mientras Z != 0, se salta a la etiqueta de bucle.
 		pop {r4}
 		bx lr		@ Retorno a quien llamó a la función.
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@ Prototipo en "C":
+@	void asm_productoEscalar12 (uint16_t * vectorIn, uint16_t * vectorOut, uint32_t longitud, uint16_t escalar);
+@
+@ Parametros recibidos:
+@   r0: dirección de memoria de inicio del vector de entrada.
+@   r1: dirección de memoria de inicio del vector de salida.
+@	r2: longitud del vector de entrada.
+@	r3: valor escalar a usar en la multiplicación.
+
+.thumb_func
+	asm_productoEscalar12:
+		push {r4}				@ Guardo el registro que voy a usar
+		asm_prod12sat_bucle:	@ Etiqueta para bucle
+			ldrh r4, [r0], #2	@ Guardo la mitad de lo apuntado por r0 en r4 y me muevo 16 bits en r0
+			mul r4, r3			@ Multiplico
+			usat r4, #12, r4	@ Saturo (no signado) a 12 bits r4 y lo guardo en r4
+			strh r4, [r1], #2	@ Guardo r4 en *r1 y muevo r1 16 bits
+			subs r2, 1
+			bne asm_prod12sat_bucle
+		pop {r4}
+		bx lr
+
+
 
