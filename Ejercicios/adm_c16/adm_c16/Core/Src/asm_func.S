@@ -93,7 +93,7 @@
 @ Prototipo en "C":
 @   void asm_productoEscalar16 (uint16_t * vectorIn, uint16_t * vectorOut, uint32_t longitud, uint16_t escalar);
 @
-@ Parametros recibidos:
+@ Parámetros recibidos:
 @   r0: dirección de memoria de inicio del vector de entrada.
 @   r1: dirección de memoria de inicio del vector de salida.
 @	r2: longitud del vector de entrada.
@@ -114,7 +114,7 @@
 @ Prototipo en "C":
 @	void asm_productoEscalar12 (uint16_t * vectorIn, uint16_t * vectorOut, uint32_t longitud, uint16_t escalar);
 @
-@ Parametros recibidos:
+@ Parámetros recibidos:
 @   r0: dirección de memoria de inicio del vector de entrada.
 @   r1: dirección de memoria de inicio del vector de salida.
 @	r2: longitud del vector de entrada.
@@ -132,6 +132,33 @@
 			bne asm_prod12sat_bucle
 		pop {r4}
 		bx lr
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@ Prototipo en "C":
+@	void asm_pack32to16 (int32_t * vectorIn, int16_t *vectorOut, uint32_t longitud);
+@
+@ Parámetros recibidos:
+@   r0: dirección de memoria de inicio del vector de entrada.
+@   r1: dirección de memoria de inicio del vector de salida.
+@	r2: longitud del vector de entrada.
+.thumb_func
+	asm_pack32to16:
+		push {r3}		@ Resguardo el registro
+		asm_pack32to16_bucle:
+			ldr r3, [r0], #4	@ Cargo el contenido en r3 y me desplazo 4 bytes
+			lsr r3, r3, #16		@ Shift right de 16 bits
+			strh r3, [r1], #2	@ Guardo la mitad del valor del registro y me desplazo 2 bytes
+			subs r2, 1
+			bne asm_pack32to16_bucle
+		pop {r3}
+		bx lr
+
+
+
+
+
+
+
 
 
 
