@@ -516,6 +516,39 @@ void filtroVentana10(uint16_t * vectorIn, uint16_t * vectorOut, uint32_t longitu
 	}
 }
 
+/**
+ * @brief   Converts 32-bits data to 16-bits data
+ * @param   *vectorIn 	Pointer to the input vector
+ * @param   *vectorOut 	Pointer to the output vector
+ * @param	longitud 	Vector size
+ * @return  None
+ */
+void pack32to16 (int32_t * vectorIn, int16_t *vectorOut, uint32_t longitud)
+{
+	uint32_t i = 0;
+
+	for(i = 0; i < longitud; i++)
+	{
+		*(vectorOut+i) = (int16_t)((*(vectorIn+i))>>16);
+	}
+}
+
+int32_t max (int32_t * vectorIn, uint32_t longitud)
+{
+	uint32_t i = 0;
+	uint32_t index = 0, maxValue = 0;
+
+	for(i = 0; i < longitud; i++)
+	{
+		if(*(vectorIn+i) > maxValue)
+		{
+			maxValue = *(vectorIn+i);
+			index = i;
+		}
+	}
+
+	return index;
+}
 /* USER CODE END 4 */
 
 /**
