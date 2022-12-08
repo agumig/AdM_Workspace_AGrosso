@@ -205,23 +205,27 @@
 @	r3: longitud del paso a realizar para borrar un elemento
 @ Registros a usar
 @	r4: auxiliar para lectura de [r0]
-@	r5: contador
+@	r5: contador desde 1 a r3
 
 .thumb_func
 	asm_downsampleM:
 		push {R4-R5}	@ Resguardo valores actuales
 		mov R5, 0		@ Inicializo en 0
 		asm_downsampleM_loop:
-			add R5, 1			@ Indico elemento a leer
+			add R5, 1			@ Indico número elemento a leer
 			ldr R4, [R0], #4	@ Leo el elemento del vector de entrada y me desplazo una posición
-			cmp R5, R3			@ Veo si es un elemento a copiar
-			ITTE EQ				@ Si ES IGUAL
-			cmpQE R5, 0			@ Si es igual, reinicio el contador
-			strNE R4, [R1], #4	@ Si no es igual, copio el valor
+			cmp R5, R3			@ Veo si es un elemento a copiar o a descartar según valor de R3
+			ITE EQ				@ Si es igual...
+				movEQ R5, 0			@ Si es igual, reinicio el contador
+				strNE R4, [R1], #4	@ Si no es igual, copio el valor y me desplazo en el vector de salida una posición
 			subs R2, 1			@ Resto en 1 el indicador de los giros del bucle y actualizo flags
 			bne asm_downsampleM_loop
 		pop {R4-R5}	@ Recupero valores iniciales
 		bx lr		@ Vuelvo a la dirección donde se invocó a la función
+
+
+
+
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 @ Prototipo en "C":
