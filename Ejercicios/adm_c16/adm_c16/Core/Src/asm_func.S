@@ -11,6 +11,7 @@
 .global asm_productoEscalar12
 
 
+
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 @ Prototipo en "C":
 @   void asm_svc (void)
@@ -57,14 +58,14 @@
 @   r1: longitud del vector mencionado.
 .thumb_func					@ Se indica al ensamblador que es una función.
 	asm_zeros:				@ Etiqueta/nombre de la función.
-		push {r2}			@ Resguardo el valor de r2
-		mov r2, 0			@ r2 = 0.
+		push {R2}			@ Resguardo el valor de r2
+		mov R2, 0			@ r2 = 0.
 		asm_zeros_bucle:	@ Etiqueta de comienzo de bucle.
-			str r2, [r0]	@ Seteo en 0 el contenido de la dirección apuntada por r0.
-			add r0, 4		@ Me desplazo 4 bytes en la memoria.
-			subs r1, 1		@ Resto en 1 la longitud y actualizo flags del procesador.
+			str R2, [R0]	@ Seteo en 0 el contenido de la dirección apuntada por r0.
+			add R0, 4		@ Me desplazo 4 bytes en la memoria.
+			subs R1, 1		@ Resto en 1 la longitud y actualizo flags del procesador.
 			bne asm_zeros_bucle	@ Mientras Z != 0, se salta a la etiqueta de bucle.
-		pop {r2}
+		pop {R2}
 		bx lr				@ Retorno a quien llamó a la función.
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -78,14 +79,14 @@
 @	r3: valor escalar a usar en la multiplicación.
 .thumb_func
 	asm_productoEscalar32:
-		push {r4}				@ Guardo el registro que voy a usar
+		push {R4}				@ Guardo el registro que voy a usar
 		asm_prod32_bucle:		@ Etiqueta de bucle
-			ldr r4, [r0], #4	@ r4 = *r0;  r0 = r0 + 4 bytes
-			mul r4, r3			@ r4 = r4 * r3
-			str r4, [r1], #4	@ *r1 = r4; r1 = r1 + 4 bytes
-			subs r2, 1			@ Resto en 1 la longitud y actualizo flags del procesador.
+			ldr R4, [R0], #4	@ r4 = *r0;  r0 = r0 + 4 bytes
+			mul R4, R3			@ r4 = r4 * r3
+			str R4, [R1], #4	@ *r1 = r4; r1 = r1 + 4 bytes
+			subs R2, 1			@ Resto en 1 la longitud y actualizo flags del procesador.
 			bne asm_prod32_bucle	@ Mientras Z != 0, se salta a la etiqueta de bucle.
-		pop {r4}
+		pop {R4}
 		bx lr		@ Retorno a quien llamó a la función.
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -99,14 +100,14 @@
 @	r3: valor escalar a usar en la multiplicación.
 .thumb_func
 	asm_productoEscalar16:
-		push {r4}				@ Guardo el registro que voy a usar
+		push {R4}				@ Guardo el registro que voy a usar
 		asm_prod16_bucle:		@ Etiqueta de bucle
-			ldrh r4, [r0], #2	@ r4 = *r0;  r0 = r0 + 4 bytes
-			mul  r4, r3			@ r4 = r4 * r3
-			strh r4, [r1], #2	@ *r1 = r4; r1 = r1 + 4 bytes
-			subs r2, 1			@ Resto en 1 la longitud y actualizo flags del procesador.
+			ldrh R4, [R0], #2	@ r4 = *r0;  r0 = r0 + 4 bytes
+			mul  R4, R3			@ r4 = r4 * r3
+			strh R4, [R1], #2	@ *r1 = r4; r1 = r1 + 4 bytes
+			subs R2, 1			@ Resto en 1 la longitud y actualizo flags del procesador.
 			bne asm_prod16_bucle	@ Mientras Z != 0, se salta a la etiqueta de bucle.
-		pop {r4}
+		pop {R4}
 		bx lr		@ Retorno a quien llamó a la función.
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -121,15 +122,20 @@
 
 .thumb_func
 	asm_productoEscalar12:
-		push {r4}				@ Guardo el registro que voy a usar
+		push {R4}				@ Guardo el registro que voy a usar
+
+@		mrs R4, APSR			@ Bloque para limpiar el flag Q (overflow). No es necesario en este ejercicio.
+@		bfc R4, 27, 1
+@		msr APSR_nzcvq, R4
+
 		asm_prod12sat_bucle:	@ Etiqueta para bucle
-			ldrh r4, [r0], #2	@ Guardo la mitad de lo apuntado por r0 en r4 y me muevo 16 bits en r0
-			mul r4, r3			@ Multiplico
-			usat r4, #12, r4	@ Saturo (no signado) a 12 bits r4 y lo guardo en r4
-			strh r4, [r1], #2	@ Guardo r4 en *r1 y muevo r1 16 bits
-			subs r2, 1
+			ldrh R4, [R0], #2	@ Guardo la mitad de lo apuntado por r0 en r4 y me muevo 16 bits en r0
+			mul R4, R3			@ Multiplico
+			usat R4, #12, R4	@ Saturo (no signado) a 12 bits r4 y lo guardo en r4
+			strh R4, [R1], #2	@ Guardo r4 en *r1 y muevo r1 16 bits
+			subs R2, 1
 			bne asm_prod12sat_bucle
-		pop {r4}
+		pop {R4}
 		bx lr
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -142,20 +148,21 @@
 @	r2: longitud del vector de entrada.
 .thumb_func
 	asm_pack32to16:
-		push {r3}		@ Resguardo el registro
+		push {R3}		@ Resguardo el registro
 		asm_pack32to16_bucle:
-			ldr r3, [r0], #4	@ Cargo el contenido en r3 y me desplazo 4 bytes
-			lsr r3, r3, #16		@ Shift right de 16 bits
-			strh r3, [r1], #2	@ Guardo la mitad del valor del registro y me desplazo 2 bytes
-			subs r2, 1
+			ldr R3, [R0], #4	@ Cargo el contenido en r3 y me desplazo 4 bytes
+			lsr R3, R3, #16		@ Shift right de 16 bits
+			strh R3, [R1], #2	@ Guardo la mitad del valor del registro y me desplazo 2 bytes
+			subs R2, 1
 			bne asm_pack32to16_bucle
 		pop {r3}
 		bx lr
 
+
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 @ Prototipo en "C":
 @	int32_t asm_max (int32_t * vectorIn, uint32_t longitud);
-@f
+@
 @ Parámetros recibidos:
 @   r0: dirección de memoria de inicio del vector de entrada.
 @   r1: longitud del vector de entrada.
@@ -169,25 +176,82 @@
 @	r0: valor de la posición del vector donde se encuentra el valor máximo
 .thumb_func
 	asm_max:
-		push {r2-r5}	@ Resguardo registros a usar
-		mov r2, 0	@ Inicializo en cero
-		mov r3, 0	@ Inicializo en cero
-		mov r4, 0	@ Inicializo en cero
-		mov r5, 0	@ Inicializo en cero
+		push {R2-R5}	@ Resguardo en pila los registros a usar. Al final del programa los recupero.
+		mov R2, 0	@ Inicializo en cero
+		mov R3, 0	@ Inicializo en cero
+		mov R4, 0	@ Inicializo en cero
+		mov R5, 0	@ Inicializo en cero
 		asm_max_bucle:
-			ldr r5, [r0], #4	@ Leo el valor del vector
-			cmp r5, r2			@ Comparo el valor actual (r5) con el último máximo (r2)
+			ldr R5, [R0], #4	@ Leo el valor actual del vector y me muevo 4 bytes en memoria hacia el próximo elemento
+			cmp R5, R2			@ Comparo el valor actual (r5) con el último máximo (r2)
 			ITT HI				@ Ejecución condicional de próximas dos instrucciones: si r5 es mayor a r2
-				movhi r3, r4	@ Guardo el índice del vector
-				movhi r2, r5	@ Guardo el nuevo valor máximo
-			add r4, 1			@ Incremento el valor del índice en el vector
-			subs r1, 1			@ Resto al tamaño del vector y, por lo tanto, a la cantidad de ciclos del bucle
+				movhi R3, R4	@ Guardo el índice del vector
+				movhi R2, R5	@ Guardo el nuevo valor máximo
+			add R4, 1			@ Incremento el valor del índice en el vector
+			subs R1, 1			@ Resto al tamaño del vector y, por lo tanto, a la cantidad de ciclos del bucle
 			bne asm_max_bucle
-		mov r0, r5				@ Guardo el máximo (valor de retorno)
-		pop {r2-r5}
+		mov R0, R5				@ Guardo el máximo (valor de retorno)
+		pop {R2-R5}
 		bx lr
 
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@ Prototipo en "C":
+@		void asm_downsampleM (int32_t * vectorIn, int32_t * vectorOut, uint32_t longitud, uint32_t N);
+@
+@ Parámetros recibidos:
+@   r0: dirección de memoria de inicio del vector de entrada.
+@   r1: dirección de memoria de inicio del vector de salida.
+@   r2: longitud del vector de entrada.
+@	r3: longitud del paso a realizar para borrar un elemento
+@ Registros a usar
+@	r4: auxiliar para lectura de [r0]
+@	r5: contador
 
+.thumb_func
+	asm_downsampleM:
+		push {R4-R5}	@ Resguardo valores actuales
+		mov R5, 0		@ Inicializo en 0
+		asm_downsampleM_loop:
+			add R5, 1			@ Indico elemento a leer
+			ldr R4, [R0], #4	@ Leo el elemento del vector de entrada y me desplazo una posición
+			cmp R5, R3			@ Veo si es un elemento a copiar
+			ITTE EQ				@ Si ES IGUAL
+			cmpQE R5, 0			@ Si es igual, reinicio el contador
+			strNE R4, [R1], #4	@ Si no es igual, copio el valor
+			subs R2, 1			@ Resto en 1 el indicador de los giros del bucle y actualizo flags
+			bne asm_downsampleM_loop
+		pop {R4-R5}	@ Recupero valores iniciales
+		bx lr		@ Vuelvo a la dirección donde se invocó a la función
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@ Prototipo en "C":
+@	void asm_filtroVentana10(uint16_t * vectorIn, uint16_t * vectorOut, uint32_t longitudVectorIn);
+@
+@ Parámetros recibidos:
+@   r0: dirección de memoria de inicio del vector de entrada.
+@   r1: dirección de memoria de inicio del vector de salida.
+@	r2: longitud del vector de entrada
+@ Registros a usar
+@	r3: contador i
+@	r4: contador j
+@	r5: contador de muestras
+@	r6: auxiliar
+
+
+@thumb_func
+@	asm_filtroVentana10:
+@		push {r3-r6}
+@		mov r3, 0	@ i = 0
+@		asm_filtroVentana10_bucle_1:
+@		mov r4, 5	@ j = 5
+@		mov r5, 0	@ samples = 0
+@			asm_filtroVentana10_bucle_2:
+@
+@			subs r4, 1
+@			bne _filtroVentana10_bucle_2
+@
+@		subs r2, 1
+@		bne _filtroVentana10_bucle_1
 
 
 
