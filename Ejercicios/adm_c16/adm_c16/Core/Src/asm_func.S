@@ -5,11 +5,15 @@
 @ Simbolos exportados
 .global asm_svc
 .global asm_sum
-.global asm_zero
+.global asm_zeros
 .global asm_productoEscalar32
 .global asm_productoEscalar16
 .global asm_productoEscalar12
-
+.global asm_pack32to16
+.global asm_max
+.global asm_filtroVentana10
+.global asm_downsampleM
+.global asm_invertir
 
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -184,13 +188,13 @@
 		asm_max_bucle:
 			ldr R5, [R0], #4	@ Leo el valor actual del vector y me muevo 4 bytes en memoria hacia el próximo elemento
 			cmp R5, R2			@ Comparo el valor actual (r5) con el último máximo (r2)
-			ITT HI				@ Ejecución condicional de próximas dos instrucciones: si r5 es mayor a r2
-				movhi R3, R4	@ Guardo el índice del vector
-				movhi R2, R5	@ Guardo el nuevo valor máximo
+			ITT GT				@ Ejecución condicional de próximas dos instrucciones: si r5 es mayor a r2
+				movgt R3, R4	@ Guardo el índice del vector
+				movgt R2, R5	@ Guardo el nuevo valor máximo
 			add R4, 1			@ Incremento el valor del índice en el vector
 			subs R1, 1			@ Resto al tamaño del vector y, por lo tanto, a la cantidad de ciclos del bucle
 			bne asm_max_bucle
-		mov R0, R5				@ Guardo el máximo (valor de retorno)
+		mov R0, R3				@ Guardo el máximo (valor de retorno)
 		pop {R2-R5}
 		bx lr
 
@@ -225,6 +229,40 @@
 
 
 
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@ Prototipo en "C":
+@		void asm_invertir (uint16_t * vector, uint32_t longitud);
+@
+@ Parámetros recibidos:
+@   r0: dirección de memoria de inicio del vector de entrada.
+@   r1: longitud del vector de entrada.
+@ Registros a usar
+@	r2: auxiliar para lectura de [r0]
+@	r3: auxiliar para 2da lectura de [r0]
+@	r4: contador de pasos de a 2 bytes
+@	r5: contador de pasos de a -2 bytes
+
+
+
+.thumb_func
+	asm_invertir:
+		push {R2-R5}
+		mov R4, 2			@ Cargo el valor 2 (2 bytes) para usarlo en la inicialización de R5
+		mov R5, R1			@ Cargo la cantidad N de elementos
+		sub R5, 1			@ Cargo N - 1
+		mul R5, R4			@ Multiplico por la cantidad de bytes de cada elemento de los N - Obtengo los bytes a desplazarme en memoria para obtener el elementro N - 1
+		mov R4, 0			@ Inicializo en 0 (primer dígito del vector)
+		asm_invertir_loop:
+			ldrh R2, [R0, R4]	@ Leo el elemento 0 + X
+			ldrh R3, [R0, R5]	@ Leo el elemento N - X
+			strh R2, [R0, R5]	@ Invierto posiciones
+			strh R3, [R0, R4]	@
+			add R4, 2			@ Paso al elemento siguiente
+			sub R5, 2			@ Paso al elemento anterior
+			cmp R4, R5			@ Comparo
+			blo	asm_invertir_loop @ Si R4 es menor a R5 (no llegué al medio), entonces, continuo en el bucle
+		pop {R2-R5}
+		bx lr		@ Vuelvo a la dirección donde se invocó a la función
 
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
