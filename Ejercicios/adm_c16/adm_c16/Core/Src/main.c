@@ -22,7 +22,6 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "asm_func.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -130,8 +129,19 @@ static void PrivilegiosSVC (void)
 int main(void)
 {
 	/* USER CODE BEGIN 1 */
+	/*  Creo vectores de prueba */
 
-	/* USER CODE END 1 */
+	uint32_t vectorIn_uint32[LEN] = {1,2,3,4,5,6,7,8,23,10,11,12,13,14,15,16,17,18,19};
+	uint32_t vectorOut_uint32[LEN]= {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19};
+
+	int32_t vectorIn_int32[LEN] = {131021,1310210,3,4,5,5096,7,8,9,10,11,12,13,14,15,16,17,18,19};
+	int32_t vectorOut_int32[LEN]= {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19};
+
+	uint16_t vectorIn_uint16[LEN] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19};
+	uint16_t vectorOut_uint16[LEN]= {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19};
+
+	int16_t vectorOut_int16[LEN]= {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19};
+		/* USER CODE END 1 */
 
 	/* MCU Configuration--------------------------------------------------------*/
 
@@ -157,7 +167,22 @@ int main(void)
 	/* USER CODE BEGIN 2 */
 	PrivilegiosSVC ();
 
-	const uint32_t Resultado = asm_sum (5, 3);
+	/* Sección de pruebas mediante dubgging */
+
+	asm_zeros(vectorOut_uint32, LEN);
+	asm_productoEscalar32 (vectorIn_uint32, vectorOut_uint32, LEN, ESCALAR);
+	asm_productoEscalar16 (vectorIn_uint16, vectorOut_uint16, LEN, ESCALAR);
+	asm_productoEscalar12 (vectorIn_uint16, vectorOut_uint16, LEN, ESCALAR);
+	asm_pack32to16 (vectorIn_int32, vectorOut_int16, LEN);
+	int32_t maximo = asm_max ( vectorIn_int32, LEN);
+	asm_downsampleM (vectorIn_int32, vectorOut_int32, LEN, DELETE_MAK);
+	asm_invertir (vectorIn_uint16, LEN);
+
+
+
+
+
+
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
@@ -575,7 +600,27 @@ void downsampleM (int32_t * vectorIn, int32_t * vectorOut, uint32_t longitud, ui
 		}
 	}
 }
+/**
+ * @brief   Inverts the elements of a vector
+ * @param   *vector 	Pointer to the input vector
+ * @param	longitud 	Vector size
+ * @return  none
+ */
 
+void invertir (uint16_t * vector, uint32_t longitud)
+{
+	uint32_t i = 0;
+	uint16_t auxSwap = 0;
+
+	longitud--;
+
+	for (i = 0; i < (longitud - i); i++)
+	{
+		auxSwap = *(vector + i);
+		*(vector + i) = *(vector + (longitud - i));
+		*(vector + (longitud - i)) = auxSwap;
+	}
+}
 
 
 /* USER CODE END 4 */

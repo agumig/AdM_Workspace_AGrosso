@@ -32,6 +32,7 @@ extern "C" {
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
+#include "asm_func.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -41,7 +42,9 @@ extern "C" {
 
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
-
+#define LEN 19
+#define ESCALAR 3
+#define DELETE_MAK 5
 /* USER CODE END EC */
 
 /* Exported macro ------------------------------------------------------------*/
@@ -61,6 +64,8 @@ void filtroVentana10(uint16_t * vectorIn, uint16_t * vectorOut, uint32_t longitu
 void pack32to16 (int32_t * vectorIn, int16_t *vectorOut, uint32_t longitud);
 int32_t max (int32_t * vectorIn, uint32_t longitud);
 void downsampleM (int32_t * vectorIn, int32_t * vectorOut, uint32_t longitud, uint32_t N);
+void invertir (uint16_t * vector, uint32_t longitud);
+
 
 
 /* USER CODE END EFP */
