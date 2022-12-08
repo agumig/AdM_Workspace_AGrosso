@@ -554,6 +554,30 @@ int32_t max (int32_t * vectorIn, uint32_t longitud)
 
 	return index;
 }
+
+/**
+ * @brief   Deletes one digit every N digits
+ * @param   *vectorIn 	Pointer to the input vector
+ * @param	longitud 	Vector size
+ * @param	N			Number of digit to delete
+ * @return  none
+ */
+void downsampleM (int * vectorIn, int * vectorOut, int longitud, int N)
+{
+	int i = 0, outIndex = 0;
+
+	for(i = 0; i < longitud ; i++)	// Recorro el vector
+	{
+		if((i+1)%N != 0)	// Mientras sea falso (cuando i+1 no es múltimo de N)
+		{
+			vectorOut[outIndex] = vectorIn[i];	// Copio
+			outIndex++;
+		}
+	}
+}
+
+
+
 /* USER CODE END 4 */
 
 /**
@@ -570,6 +594,7 @@ void Error_Handler(void)
 	}
 	/* USER CODE END Error_Handler_Debug */
 }
+
 
 #ifdef  USE_FULL_ASSERT
 /**
