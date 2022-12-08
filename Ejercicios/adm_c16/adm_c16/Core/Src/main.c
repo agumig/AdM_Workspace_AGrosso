@@ -562,7 +562,7 @@ int32_t max (int32_t * vectorIn, uint32_t longitud)
  * @param	N			Number of digit to delete
  * @return  none
  */
-void downsampleM (int * vectorIn, int * vectorOut, int longitud, int N)
+void downsampleM (int32_t * vectorIn, int32_t * vectorOut, uint32_t longitud, uint32_t N)
 {
 	int i = 0, outIndex = 0;
 
