@@ -174,7 +174,7 @@ int main(void)
 	asm_productoEscalar16 (vectorIn_uint16, vectorOut_uint16, LEN, ESCALAR);
 	asm_productoEscalar12 (vectorIn_uint16, vectorOut_uint16, LEN, ESCALAR);
 	asm_pack32to16 (vectorIn_int32, vectorOut_int16, LEN);
-	int32_t maximo = asm_max ( vectorIn_int32, LEN);
+	//int32_t maximo = asm_max ( vectorIn_int32, LEN);
 	asm_downsampleM (vectorIn_int32, vectorOut_int32, LEN, DELETE_MAK);
 	asm_invertir (vectorIn_uint16, LEN);
 

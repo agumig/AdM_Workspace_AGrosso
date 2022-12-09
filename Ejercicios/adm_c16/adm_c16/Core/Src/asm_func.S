@@ -278,13 +278,14 @@
 @	r4: usado para leer [r0]
 @	r5: usado para resguardar r0 y luego usado para leer [R1]
 @	r6: usado para resguardar r1
+@	r7: auxiliar
 
 
 .thumb_func
 	asm_eco:
-		push {R4-R6}	@ Resguardo registros a usar
-		lsr R2, 1	@ Divido por dos la longitud ya que leeré de a dos valores de 16 bits
-		lsr R3, 1	@ Divido por dos la posición inicial del eco ya que leeré de a dos valores de 16 bits
+		push {R4-R7}	@ Resguardo registros a usar
+		lsr R2, 1	@ Divido por dos la longitud ya que se leerá de a dos valores de 16 bits
+		lsr R3, 1	@ Divido por dos la posición inicial del eco ya que se leerá de a dos valores de 16 bits
 		mov R5, 0	@ Será usado de contador
 		mov R6, R2	@ Resguardo la cantidad de elementos
 
@@ -299,23 +300,33 @@
 		add R1, R3	@ Desplazo hasta la posición del primer elemento al que incorporarle eco
 		sub R2, R3	@ Calculo la cantidad de elementos a los que incorporarles eco
 
+		mov R7, #0x0000FFFF	@ Máscara para eliminar los más significativos previo a una suma
+
 		asm_eco_eco_loop:
 			@ldr R4, [R0], #4
 			@slsr16 R4, 1		@ Divido por dos (genero el eco) ambas partes de 16 bits con SIMD
 
+			ldrh R5, [R0], #2	@ Cargo los 16 bits menos significativos
+			sxth R5, R5			@ Extiendo el signo del harlf word
+			lsr R5, 1			@ Divido por dos
+			mul R5, R5, R7			@ Aplico la máscara
+			lsl R5, 16			@ Paso los 16 bits menos significativos a la parte alta
+
 			ldrh R4, [R0], #2	@ Cargo 16 bits
-			lsl R4, 16			@ Los desplazo hacia el half word más significativo
-			ldrh R4, [R0], #2	@ Cargo los 16 bits menos significativos
-			lsr R4, 1			@ Divido por 2
+			sxth R4, R4			@ Extiendo el signo del harlf word
+			lsr R4, 1			@ Divido por dos
+			mul R4, R4, R7		@ Aplico la máscara
+
+			add R4, R4, R5		@ Agrego los dos valores preparados en la parte alta y en la baja
 
 			ldr R5, [R1]		@ Leo el valor del vector de salida
-			sadd16 R5, R5, R4		@ Le sumo el eco al valor del vector de salida
+			sadd16 R5, R5, R4	@ Le sumo el eco al valor del vector de salida
 			str R5, [R1], #4	@ Cargo el valor con eco en el vector de salida
 
 			subs R2, 1
 			bne asm_eco_eco_loop
 
-		pop {R4-R6}
+		pop {R4-R7}
 		bx lr
 
 
@@ -335,22 +346,21 @@
 @	r5: contador de muestras
 @	r6: auxiliar
 
-
-@thumb_func
-@	asm_filtroVentana10:
-@		push {r3-r6}
-@		mov r3, 0	@ i = 0
-@		asm_filtroVentana10_bucle_1:
-@		mov r4, 5	@ j = 5
-@		mov r5, 0	@ samples = 0
-@			asm_filtroVentana10_bucle_2:
-@
-@			subs r4, 1
-@			bne _filtroVentana10_bucle_2
-@
-@		subs r2, 1
-@		bne _filtroVentana10_bucle_1
-
+/*
+thumb_func
+	asm_filtroVentana10:
+		push {R3-R6}
+		mov R3, 0	@ i = 0
+		asm_filtroVentana10_bucle:
+		mov r4, 5	@ j = 5
+		mov r5, 0	@ samples = 0
+			asm_filtroVentana10_bucle_2:
+			subs r4, 1
+			bne _filtroVentana10_bucle_2
+		add R3, 1	@ i++
+		subs r2, 1	@ Usado para recorrer el vector
+		bne _filtroVentana10_bucle
+*/
 
 
 
