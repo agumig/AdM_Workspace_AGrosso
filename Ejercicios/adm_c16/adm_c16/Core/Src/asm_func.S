@@ -14,7 +14,7 @@
 .global asm_filtroVentana10
 .global asm_downsampleM
 .global asm_invertir
-
+.global asm_eco
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 @ Prototipo en "C":
@@ -263,6 +263,62 @@
 			blo	asm_invertir_loop @ Si R4 es menor a R5 (no llegué al medio), entonces, continuo en el bucle
 		pop {R2-R5}
 		bx lr		@ Vuelvo a la dirección donde se invocó a la función
+
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@ Prototipo en "C":
+@		void asm_eco (int16_t * vectorIn, int16_t * vectorOut, uint32_t longitud)
+@
+@ Parámetros recibidos:
+@   r0: dirección de memoria de inicio del vector de entrada.
+@   r1: dirección de memoria de inicio del vector de salida.
+@   r2: longitud del vector de entrada.
+@	r3: muestra desde la cual introducir el eco
+@ Registros a usar
+@	r4: usado para leer [r0]
+@	r5: usado para resguardar r0 y luego usado para leer [R1]
+@	r6: usado para resguardar r1
+
+
+.thumb_func
+	asm_eco:
+		push {R4-R6}	@ Resguardo registros a usar
+		lsr R2, 1	@ Divido por dos la longitud ya que leeré de a dos valores de 16 bits
+		lsr R3, 1	@ Divido por dos la posición inicial del eco ya que leeré de a dos valores de 16 bits
+		mov R5, 0	@ Será usado de contador
+		mov R6, R2	@ Resguardo la cantidad de elementos
+
+		asm_eco_copy_loop:			@ Loop donde copio el vector entero
+			ldr R4, [R0, R5]		@ Leo R0
+			str R4, [R1, R5]		@ Copio R0 en R1
+			add R5, 4				@ Muevo el índice 4 bytes
+			subs R2, 1
+			bne asm_eco_copy_loop
+
+		mov R2, R6	@ Recupero la cantidad de elementos del vector
+		add R1, R3	@ Desplazo hasta la posición del primer elemento al que incorporarle eco
+		sub R2, R3	@ Calculo la cantidad de elementos a los que incorporarles eco
+
+		asm_eco_eco_loop:
+			@ldr R4, [R0], #4
+			@slsr16 R4, 1		@ Divido por dos (genero el eco) ambas partes de 16 bits con SIMD
+
+			ldrh R4, [R0], #2	@ Cargo 16 bits
+			lsl R4, 16			@ Los desplazo hacia el half word más significativo
+			ldrh R4, [R0], #2	@ Cargo los 16 bits menos significativos
+			lsr R4, 1			@ Divido por 2
+
+			ldr R5, [R1]		@ Leo el valor del vector de salida
+			sadd16 R5, R5, R4		@ Le sumo el eco al valor del vector de salida
+			str R5, [R1], #4	@ Cargo el valor con eco en el vector de salida
+
+			subs R2, 1
+			bne asm_eco_eco_loop
+
+		pop {R4-R6}
+		bx lr
+
+
 
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
