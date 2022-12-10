@@ -343,24 +343,58 @@
 @ Registros a usar
 @	r3: contador i
 @	r4: contador j
-@	r5: contador de muestras
-@	r6: auxiliar
+@	r5: indice auxiliar
+@	r6: auxiliar para leer R0
+@	r7: suma de datos
+@	r8: contador de samples
+@	r9: resguardo de r2
 
-/*
-thumb_func
+
+.thumb_func
 	asm_filtroVentana10:
-		push {R3-R6}
+		push {R3-R9}
 		mov R3, 0	@ i = 0
+		mov R9, R2
+
 		asm_filtroVentana10_bucle:
-		mov r4, 5	@ j = 5
-		mov r5, 0	@ samples = 0
-			asm_filtroVentana10_bucle_2:
-			subs r4, 1
-			bne _filtroVentana10_bucle_2
+		mov R4, 5	@ j = 5 - Mitad de la ventana de 10
+		mov R5, 0
+		mov R6, 0
+		mov R7, 0	@ acumulado de suma de datos para promedio
+		mov R8, 0	@ contador de samples de la ventana
+
+			asm_filtroVentana10_bucle_izq:	@ Bucle para la parte izquierda de la ventana del filtro
+				subs R5, R3, R4			@ Analizo si no me voy de rango
+				lsl R5, 1				@ Multiplico por 2 para moverme de a 2 bytes
+				ITTT PL					@ Si es positivo o 0
+					ldrhPL R6, [R0, R5]	@ Leo el índice correspondiente de R0
+					addPL R7, R6		@ Acumulo el valor
+					addPL R8, 1			@ Sumo un sample
+				subs R4, 1
+			bne asm_filtroVentana10_bucle_izq
+
+		mov R4, 5	@ j = 5 - Mitad de la ventana de 10
+
+			asm_filtroVentana10_bucle_der:	@ Bucle para la parte izquierda de la ventana del filtro
+				add R5, R3, R4			@ Analizo si no me voy de rango
+				cmp R9, R5				@ Comparo con el límite superior del vector
+				lsl R5, 1				@ Multiplico por 2 para moverme de a 2 bytes
+				ITTT HI					@ Si es positivo o 0
+					ldrhHI R6, [R0, R5]	@ Leo el índice correspondiente de R0
+					addHI R7, R6		@ Acumulo el valor
+					addHI R8, 1			@ Sumo un sample
+				subs R4, 1
+			bne asm_filtroVentana10_bucle_der
+
+		udiv R7, R7, R8
+		strh R7, [R1, R3]
+
 		add R3, 1	@ i++
-		subs r2, 1	@ Usado para recorrer el vector
-		bne _filtroVentana10_bucle
-*/
+		subs R2, 1	@ Usado para recorrer el vector
+		bne asm_filtroVentana10_bucle
+
+		pop {R3-R9}
+		bx lr
 
 
 
