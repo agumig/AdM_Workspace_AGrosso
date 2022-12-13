@@ -28,7 +28,7 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
-
+#include "stm32f4xx_hal_uart.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -45,6 +45,8 @@ extern "C" {
 #define LEN 19
 #define ESCALAR 3
 #define DELETE_MAK 5
+#define LEN_MUESTRAS 4096
+#define LEN_ECO 882
 /* USER CODE END EC */
 
 /* Exported macro ------------------------------------------------------------*/
@@ -65,7 +67,11 @@ void pack32to16 (int32_t * vectorIn, int16_t *vectorOut, uint32_t longitud);
 int32_t max (int32_t * vectorIn, uint32_t longitud);
 void downsampleM (int32_t * vectorIn, int32_t * vectorOut, uint32_t longitud, uint32_t N);
 void invertir (uint16_t * vector, uint32_t longitud);
+void eco (int16_t * vectorIn, int16_t * vectorOut, uint32_t longitud, uint32_t muestra);
 
+
+void vPrintString( const char *pcString );
+void vPrintStringAndNumber( const char *pcString, uint32_t ulValue );
 
 
 /* USER CODE END EFP */

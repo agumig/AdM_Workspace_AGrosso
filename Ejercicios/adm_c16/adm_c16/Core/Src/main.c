@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "string.h"
+#include "stdio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -31,6 +32,8 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -66,6 +69,20 @@ static void MX_USB_OTG_FS_PCD_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+/**
+  * @brief  Retargets the C library printf function to the USART.
+  * @param  None
+  * @retval None
+  */
+PUTCHAR_PROTOTYPE
+{
+	/* Place your implementation of fputc here */
+    /* e.g. write a character to the USART3 and Loop until the end of transmission */
+	HAL_UART_Transmit(&huart3, (uint8_t *)&ch, 1, 0xFFFF);
+
+	return ch;
+}
 static void PrivilegiosSVC (void)
 {
 	// Obtiene valor del registro de 32 bits del procesador llamado "control".
@@ -128,6 +145,8 @@ static void PrivilegiosSVC (void)
  */
 int main(void)
 {
+
+
 	/* USER CODE BEGIN 1 */
 	/*  Creo vectores de prueba */
 
@@ -140,8 +159,9 @@ int main(void)
 	uint16_t vectorIn_uint16[LEN] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19};
 	uint16_t vectorOut_uint16[LEN]= {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19};
 
-	int16_t vectorOut_int16[LEN]= {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19};
-		/* USER CODE END 1 */
+	int16_t vectorIn_int16[LEN_MUESTRAS];
+	int16_t vectorOut_int16[LEN_MUESTRAS];
+	/* USER CODE END 1 */
 
 	/* MCU Configuration--------------------------------------------------------*/
 
@@ -157,6 +177,9 @@ int main(void)
 
 	/* USER CODE BEGIN SysInit */
 
+	// Se activa el contado de ciclos
+	DWT->CTRL |= 1 << DWT_CTRL_CYCCNTENA_Pos;
+
 	/* USER CODE END SysInit */
 
 	/* Initialize all configured peripherals */
@@ -167,8 +190,8 @@ int main(void)
 	/* USER CODE BEGIN 2 */
 	PrivilegiosSVC ();
 
-	/* Sección de pruebas mediante dubgging */
-
+	/* Sección de pruebas mediante debugging */
+	/*
 	asm_zeros(vectorOut_uint32, LEN);
 	asm_productoEscalar32 (vectorIn_uint32, vectorOut_uint32, LEN, ESCALAR);
 	asm_productoEscalar16 (vectorIn_uint16, vectorOut_uint16, LEN, ESCALAR);
@@ -177,8 +200,64 @@ int main(void)
 	//int32_t maximo = asm_max ( vectorIn_int32, LEN);
 	asm_downsampleM (vectorIn_int32, vectorOut_int32, LEN, DELETE_MAK);
 	asm_invertir (vectorIn_uint16, LEN);
+	 */
+	/*for(uint32_t i = 0; i<LEN_MUESTRAS; i++)
+		vectorIn_int16[i]=i;
+
+	asm_eco (vectorIn_int16, vectorOut_int16, LEN_MUESTRAS, LEN_ECO);
+
+	asm_filtroVentana10(vectorIn_uint16, vectorOut_uint16, LEN); */
 
 
+	/***********************************************************************
+			 *		Sección de prueba de tiempos de ejecución
+			 */
+
+			/*	Eco	*/
+
+			vPrintString("Comienzo de test\n");
+
+			DWT->CYCCNT = 0;
+			asm_eco (vectorIn_int16, vectorOut_int16, LEN_MUESTRAS, LEN_ECO);
+			const volatile uint32_t ciclos = DWT->CYCCNT;
+
+			vPrintStringAndNumber("\n10 - ECO en ASM: ",ciclos);
+
+			DWT->CYCCNT = 0;
+			eco (vectorIn_int16, vectorOut_int16, LEN_MUESTRAS, LEN_ECO);
+			const volatile uint32_t ciclos_b = DWT->CYCCNT;
+
+			vPrintStringAndNumber("\n10 - ECO en C: ",ciclos_b);
+
+			//--------------------------------------------------------------------
+			/*	Saturación	*/
+
+			DWT->CYCCNT = 0;
+			asm_pack32to16(vectorIn_int32, vectorOut_int16, LEN);
+			const volatile uint32_t ciclos_c = DWT->CYCCNT;
+
+			vPrintStringAndNumber("\n4 - Saturación ASM : ",ciclos_c);
+
+			DWT->CYCCNT = 0;
+			pack32to16(vectorIn_int32, vectorOut_int16, LEN);
+			const volatile uint32_t  ciclos_d = DWT->CYCCNT;
+
+			vPrintStringAndNumber("\n4 - Saturación C : ",ciclos_d);
+
+			//--------------------------------------------------------------------
+			/*	Filtro de ventana móvil	*/
+
+			DWT->CYCCNT = 0;
+			asm_filtroVentana10(vectorIn_uint16, vectorOut_uint16, LEN);
+			const volatile uint32_t ciclos_e = DWT->CYCCNT;
+
+			vPrintStringAndNumber("\n5 - Filtro de ventana móvil ASM : ",ciclos_e);
+
+			DWT->CYCCNT = 0;
+			filtroVentana10(vectorIn_uint16, vectorOut_uint16, LEN);
+			const volatile uint32_t ciclos_f = DWT->CYCCNT;
+
+			vPrintStringAndNumber("\n5 - Filtro de ventana móvil C : ",ciclos_f);
 
 
 
@@ -189,6 +268,7 @@ int main(void)
 	/* USER CODE BEGIN WHILE */
 	while (1)
 	{
+
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
@@ -468,15 +548,15 @@ void productoEscalar16 (uint16_t * vectorIn, uint16_t * vectorOut, uint32_t long
 {
 	uint32_t i = 0;
 
-		if (NULL != vectorIn && NULL != vectorOut && longitud > 0)
-		{
-			for(i = 0; i < longitud; i++)
-				*(vectorOut+i) = *(vectorIn+i) * escalar;
-		}
-		else
-		{
-			Error_Handler();	//exception
-		}
+	if (NULL != vectorIn && NULL != vectorOut && longitud > 0)
+	{
+		for(i = 0; i < longitud; i++)
+			*(vectorOut+i) = *(vectorIn+i) * escalar;
+	}
+	else
+	{
+		Error_Handler();	//exception
+	}
 }
 
 /**
@@ -491,20 +571,20 @@ void productoEscalar12 (uint16_t * vectorIn, uint16_t * vectorOut, uint32_t long
 {
 	uint32_t i = 0;
 
-		if (NULL != vectorIn && NULL != vectorOut && longitud > 0)
+	if (NULL != vectorIn && NULL != vectorOut && longitud > 0)
+	{
+		for(i = 0; i < longitud; i++)
 		{
-			for(i = 0; i < longitud; i++)
-			{
-				if((*(vectorIn+i) * escalar) > SATURACION_12_BITS)
-					*(vectorOut+i) = SATURACION_12_BITS;
-				else
-					*(vectorOut+i) = *(vectorIn+i) * escalar;
-			}
+			if((*(vectorIn+i) * escalar) > SATURACION_12_BITS)
+				*(vectorOut+i) = SATURACION_12_BITS;
+			else
+				*(vectorOut+i) = *(vectorIn+i) * escalar;
 		}
-		else
-		{
-			Error_Handler();	//exception
-		}
+	}
+	else
+	{
+		Error_Handler();	//exception
+	}
 }
 
 /**
@@ -622,6 +702,36 @@ void invertir (uint16_t * vector, uint32_t longitud)
 	}
 }
 
+
+void eco (int16_t * vectorIn, int16_t * vectorOut, uint32_t longitud, uint32_t muestra)
+{
+	int i = 0;
+	for(i = 0; i < longitud; i++)
+		vectorOut[i] = vectorIn[i];
+
+	for(i = 0; (i+muestra) < longitud; i++)
+		vectorOut[i+muestra] += vectorIn[i]/2;	// Le agrego el eco defasado
+}
+
+void vPrintString( const char *pcString )
+{
+	/* Print the string, using a critical section as a crude method of mutual
+	 * exclusion. */
+	{
+		printf( "%s", pcString );
+		fflush( stdout );
+	}
+}
+
+void vPrintStringAndNumber( const char *pcString, uint32_t ulValue )
+{
+	/* Print the string, using a critical section as a crude method of mutual
+	 * exclusion. */
+	{
+		printf( "%s %lu\r\n", pcString, ulValue );
+		fflush( stdout );
+	}
+}
 
 /* USER CODE END 4 */
 

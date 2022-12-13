@@ -267,7 +267,7 @@
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 @ Prototipo en "C":
-@		void asm_eco (int16_t * vectorIn, int16_t * vectorOut, uint32_t longitud)
+@		void asm_eco (int16_t * vectorIn, int16_t * vectorOut, uint32_t longitud, uint32_t muestra)
 @
 @ Parámetros recibidos:
 @   r0: dirección de memoria de inicio del vector de entrada.
@@ -283,9 +283,9 @@
 
 .thumb_func
 	asm_eco:
-		push {R4-R7}	@ Resguardo registros a usar
+		push {R4-R6}	@ Resguardo registros a usar
 		lsr R2, 1	@ Divido por dos la longitud ya que se leerá de a dos valores de 16 bits
-		lsr R3, 1	@ Divido por dos la posición inicial del eco ya que se leerá de a dos valores de 16 bits
+		//lsr R3, 1	@ Divido por dos la posición inicial del eco ya que se leerá de a dos valores de 16 bits
 		mov R5, 0	@ Será usado de contador
 		mov R6, R2	@ Resguardo la cantidad de elementos
 
@@ -297,16 +297,17 @@
 			bne asm_eco_copy_loop
 
 		mov R2, R6	@ Recupero la cantidad de elementos del vector
+		lsl R3, 1	@ Multiplico por dos, previo a la suma porque son pasos de a 2 bytes
 		add R1, R3	@ Desplazo hasta la posición del primer elemento al que incorporarle eco
+		lsr R3, 2	@ Divido por cuatro (words), previo a la resta
 		sub R2, R3	@ Calculo la cantidad de elementos a los que incorporarles eco
 
-		mov R7, #0x0000FFFF	@ Máscara para eliminar los más significativos previo a una suma
-
 		asm_eco_eco_loop:
-			@ldr R4, [R0], #4
-			@slsr16 R4, 1		@ Divido por dos (genero el eco) ambas partes de 16 bits con SIMD
+			ldr R4, [R0], #4
+			mov R5, 0
+			shadd16 R4, R4, R5		@ Divido por dos (genero el eco) ambas partes de 16 bits con SIMD
 
-			ldrh R5, [R0], #2	@ Cargo los 16 bits menos significativos
+		/*	ldrh R5, [R0], #2	@ Cargo los 16 bits menos significativos
 			sxth R5, R5			@ Extiendo el signo del harlf word
 			lsr R5, 1			@ Divido por dos
 			mul R5, R5, R7			@ Aplico la máscara
@@ -317,7 +318,7 @@
 			lsr R4, 1			@ Divido por dos
 			mul R4, R4, R7		@ Aplico la máscara
 
-			add R4, R4, R5		@ Agrego los dos valores preparados en la parte alta y en la baja
+			add R4, R4, R5		@ Agrego los dos valores preparados en la parte alta y en la baja*/
 
 			ldr R5, [R1]		@ Leo el valor del vector de salida
 			sadd16 R5, R5, R4	@ Le sumo el eco al valor del vector de salida
@@ -326,7 +327,7 @@
 			subs R2, 1
 			bne asm_eco_eco_loop
 
-		pop {R4-R7}
+		pop {R4-R6}
 		bx lr
 
 
@@ -386,8 +387,10 @@
 				subs R4, 1
 			bne asm_filtroVentana10_bucle_der
 
-		udiv R7, R7, R8
-		strh R7, [R1, R3]
+		udiv R7, R7, R8		@ Calculo el promedio dividiendo el acumulado por las muestras tomadas
+		mov R8, R3			@ Muevo el índice a R8
+		lsl R8, 1			@ Multiplico por dos para moverme 2 bytes
+		strh R7, [R1, R8]	@ Escribo los 16 bits en memoria
 
 		add R3, 1	@ i++
 		subs R2, 1	@ Usado para recorrer el vector
